@@ -4,8 +4,6 @@ export function debounce<T extends (...args: any[]) => void>(callback: T, delay:
   return (...args: Parameters<T>) => {
     clearTimeout(timeoutId);
 
-    timeoutId = setTimeout(() => {
-      callback(...args);
-    }, delay);
+    timeoutId = setTimeout(() => {callback(...args)}, delay);
   };
 }
