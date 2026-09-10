@@ -1,12 +1,26 @@
 import { useEffect, useMemo, useState } from "react";
+
 import { ModelService } from "./models/ModelService";
 import type { ModelData } from "./models/Model";
+
 import { ModelSearch } from "./search/ModelSearch";
 import { debounce } from "./utils/debounce";
 
+import type { ModelFilterOptions } from "./filters/types";
+import { ModelFilter } from "./filters/ModelFilter";
+
+import { SearchBar } from "./components/search/SearchBar";
+import { FilterPanel } from "./components/filters/FilterPanel";
+import { ModelList } from "./components/models/ModelList";
+
 function App() {
   const [models, setModels] = useState<ModelData[]>([]);
+  const [filteredModels, setFilteredModels] = useState<ModelData[]>([]);
   const [query, setQuery] = useState("");
+
+  const [filterOptions, setFilterOptions] =
+    useState<ModelFilterOptions>({});
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,6 +31,7 @@ function App() {
       .getModels()
       .then((data) => {
         setModels(data);
+        setFilteredModels(data);
         setLoading(false);
       })
       .catch((err) => {
@@ -29,24 +44,37 @@ function App() {
     return new ModelSearch(models);
   }, [models]);
 
-  const [filteredModels, setFilteredModels] = useState<ModelData[]>([]);
+  const applySearchAndFilters = (
+    searchQuery: string,
+    filters: ModelFilterOptions
+  ) => {
+    const searchedModels = search.search(searchQuery);
 
-  useEffect(() => {
-    setFilteredModels(models);
-  }, [models]);
+    const modelFilter = new ModelFilter(searchedModels);
+
+    const results = modelFilter.filter(filters);
+
+    setFilteredModels(results);
+  };
 
   const handleSearch = useMemo(
     () =>
       debounce((value: string) => {
-        const results = search.search(value);
-        setFilteredModels(results);
+        applySearchAndFilters(value, filterOptions);
       }, 300),
-    [search]
+    [search, filterOptions]
   );
 
-  const onSearchChange = (value: string) => {
+  const handleSearchChange = (value: string) => {
     setQuery(value);
     handleSearch(value);
+  };
+
+  const handleFilterChange = (
+    newFilters: ModelFilterOptions
+  ) => {
+    setFilterOptions(newFilters);
+    applySearchAndFilters(query, newFilters);
   };
 
   if (loading) {
@@ -61,28 +89,22 @@ function App() {
     <div>
       <h1>Model Search</h1>
 
-      <input
-        type="text"
-        placeholder="Search models..."
-        value={query}
-        onChange={(event) => onSearchChange(event.target.value)}
+      <SearchBar
+        query={query}
+        onSearchChange={handleSearchChange}
+      />
+
+      <FilterPanel
+        models={models}
+        filters={filterOptions}
+        onFilterChange={handleFilterChange}
       />
 
       <p>
         Showing {filteredModels.length} of {models.length} models
       </p>
 
-      {filteredModels.slice(0, 50).map((model) => (
-        <div key={model.id}>
-          <h2>{model.display_name}</h2>
-          <p>Family: {model.family}</p>
-          <p>Architecture: {model.architecture_category}</p>
-          <p>Weight: {model.weight_format}</p>
-          <p>
-            Safetensors: {model.safetensor_file_count}
-          </p>
-        </div>
-      ))}
+      <ModelList models={filteredModels} />
     </div>
   );
 }
