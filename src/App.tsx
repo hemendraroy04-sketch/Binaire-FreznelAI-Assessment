@@ -12,17 +12,28 @@ import { ModelFilter } from "./filters/ModelFilter";
 import { SearchBar } from "./components/search/SearchBar";
 import { FilterPanel } from "./components/filters/FilterPanel";
 import { ModelList } from "./components/models/ModelList";
+import { ModelSorter } from "./sorting/ModelSorter";
+import type {
+  SortField,
+  SortDirection,
+} from "./sorting/ModelSorter";
+
+import { SortPanel } from "./components/Sorting/SortPanel";
 
 function App() {
   const [models, setModels] = useState<ModelData[]>([]);
   const [filteredModels, setFilteredModels] = useState<ModelData[]>([]);
   const [query, setQuery] = useState("");
 
-  const [filterOptions, setFilterOptions] =
-    useState<ModelFilterOptions>({});
+  const [filterOptions, setFilterOptions] = useState<ModelFilterOptions>({});
+  const [sortField, setSortField] = useState<SortField>("name");
+
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const sorter = useMemo(() => { return new ModelSorter(); }, []);
 
   useEffect(() => {
     const service = new ModelService();
@@ -77,6 +88,13 @@ function App() {
     applySearchAndFilters(query, newFilters);
   };
 
+  const sortedModels = useMemo(() => {
+    return sorter.sort(filteredModels, {
+        field: sortField,
+        direction: sortDirection,
+    });
+  }, [sorter, filteredModels, sortField, sortDirection]);
+
   if (loading) {
     return <h1>Loading models...</h1>;
   }
@@ -99,12 +117,21 @@ function App() {
         filters={filterOptions}
         onFilterChange={handleFilterChange}
       />
-
+      <SortPanel
+        field={sortField}
+        direction={sortDirection}
+        onSortChange={(field, direction) => {
+            setSortField(field);
+            setSortDirection(direction);
+        }}
+      />
+    
       <p>
         Showing {filteredModels.length} of {models.length} models
       </p>
 
-      <ModelList models={filteredModels} />
+    
+      <ModelList models={sortedModels} />
     </div>
   );
 }
