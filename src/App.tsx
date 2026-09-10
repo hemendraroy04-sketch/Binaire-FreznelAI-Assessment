@@ -8,7 +8,7 @@ import { debounce } from "./utils/debounce";
 
 import type { ModelFilterOptions } from "./filters/types";
 import { ModelFilter } from "./filters/ModelFilter";
-
+import { ConnectionStatus } from "./components/Layout/ConnectionStatus";
 import { SearchBar } from "./components/search/SearchBar";
 import { FilterPanel } from "./components/filters/FilterPanel";
 import { ModelList } from "./components/models/ModelList";
@@ -106,6 +106,8 @@ function App() {
   return (
     <div>
       <h1>Model Search</h1>
+
+      <ConnectionStatus />
 
       <SearchBar
         query={query}
