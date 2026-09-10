@@ -8,27 +8,32 @@ export function ModelList({
   models,
 }: ModelListProps) {
   return (
-    <div>
+    <div className="model-list">
       {models.slice(0, 50).map((model) => (
-        <div key={model.id}>
+        <div className="model-card" key={model.id}>
           <h2>{model.display_name}</h2>
 
-          <p>Family: {model.family}</p>
-
           <p>
-            Pipeline: {model.hf_tags.pipeline_tag}
+            <strong>Family:</strong> {model.family}
           </p>
 
           <p>
-            Architecture: {model.architecture_category}
+            <strong>Pipeline:</strong>{" "}
+            {model.hf_tags.pipeline_tag}
           </p>
 
           <p>
-            Weight: {model.weight_format}
+            <strong>Architecture:</strong>{" "}
+            {model.architecture_category}
           </p>
 
           <p>
-            Safetensors: {model.safetensor_file_count}
+            <strong>Weight:</strong> {model.weight_format}
+          </p>
+
+          <p>
+            <strong>Safetensors:</strong>{" "}
+            {model.safetensor_file_count}
           </p>
         </div>
       ))}

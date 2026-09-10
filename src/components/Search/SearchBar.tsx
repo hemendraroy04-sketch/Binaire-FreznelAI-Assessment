@@ -8,15 +8,14 @@ export function SearchBar({
   onSearchChange,
 }: SearchBarProps) {
   return (
-    <div>
-      <input
-        type="text"
-        placeholder="Search by model name or family..."
-        value={query}
-        onChange={(event) =>
-          onSearchChange(event.target.value)
-        }
-      />
-    </div>
+    <input
+      className="search-input"
+      type="text"
+      placeholder="Search by model name or family..."
+      value={query}
+      onChange={(event) =>
+        onSearchChange(event.target.value)
+      }
+    />
   );
 }

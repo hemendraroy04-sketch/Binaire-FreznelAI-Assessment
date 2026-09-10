@@ -19,7 +19,7 @@ export function FilterPanel({models, filters, onFilterChange}: FilterPanelProps)
   };
 
   return (
-    <div>
+    <div className="filter-panel">
       <h3>Filters</h3>
 
       <div>

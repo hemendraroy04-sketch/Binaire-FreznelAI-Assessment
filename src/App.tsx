@@ -3,15 +3,20 @@ import { useEffect, useMemo, useState } from "react";
 import { ModelService } from "./models/ModelService";
 import type { ModelData } from "./models/Model";
 
+import "./styles/app.css";
+
 import { ModelSearch } from "./search/ModelSearch";
 import { debounce } from "./utils/debounce";
 import { BackgroundFetcher } from "./services/BackgroundFetcher";
+
 import type { ModelFilterOptions } from "./filters/types";
 import { ModelFilter } from "./filters/ModelFilter";
+
 import { ConnectionStatus } from "./components/Layout/ConnectionStatus";
 import { SearchBar } from "./components/search/SearchBar";
 import { FilterPanel } from "./components/filters/FilterPanel";
 import { ModelList } from "./components/models/ModelList";
+
 import { ModelSorter } from "./sorting/ModelSorter";
 import type {
   SortField,
@@ -22,39 +27,47 @@ import { SortPanel } from "./components/Sorting/SortPanel";
 
 function App() {
   const [models, setModels] = useState<ModelData[]>([]);
-  const [filteredModels, setFilteredModels] = useState<ModelData[]>([]);
+  const [filteredModels, setFilteredModels] =
+    useState<ModelData[]>([]);
+
   const [query, setQuery] = useState("");
 
-  const [filterOptions, setFilterOptions] = useState<ModelFilterOptions>({});
-  const [sortField, setSortField] = useState<SortField>("name");
+  const [filterOptions, setFilterOptions] =
+    useState<ModelFilterOptions>({});
 
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [sortField, setSortField] =
+    useState<SortField>("name");
+
+  const [sortDirection, setSortDirection] =
+    useState<SortDirection>("asc");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const sorter = useMemo(() => { return new ModelSorter(); }, []);
+  const sorter = useMemo(() => {
+    return new ModelSorter();
+  }, []);
 
   useEffect(() => {
-  const service = new ModelService();
-  const backgroundFetcher = new BackgroundFetcher();
+    const service = new ModelService();
+    const backgroundFetcher = new BackgroundFetcher();
 
-  service
-    .getModels()
-    .then((data) => {
-      setModels(data);
-      setFilteredModels(data);
-      setLoading(false);
+    service
+      .getModels()
+      .then((data) => {
+        setModels(data);
+        setFilteredModels(data);
+        setLoading(false);
 
-      if (navigator.onLine) {
-        backgroundFetcher.fetchAndCache();
-      }
-    })
-    .catch((err) => {
-      setError(err.message);
-      setLoading(false);
-    });
-}, []);
+        if (navigator.onLine) {
+          backgroundFetcher.fetchAndCache();
+        }
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
 
   const search = useMemo(() => {
     return new ModelSearch(models);
@@ -95,49 +108,66 @@ function App() {
 
   const sortedModels = useMemo(() => {
     return sorter.sort(filteredModels, {
-        field: sortField,
-        direction: sortDirection,
+      field: sortField,
+      direction: sortDirection,
     });
-  }, [sorter, filteredModels, sortField, sortDirection]);
+  }, [
+    sorter,
+    filteredModels,
+    sortField,
+    sortDirection,
+  ]);
 
   if (loading) {
-    return <h1>Loading models...</h1>;
+    return (
+      <div className="loading">
+        <h1>Loading models...</h1>
+      </div>
+    );
   }
 
   if (error) {
-    return <h1>Error: {error}</h1>;
+    return (
+      <div className="error">
+        <h1>Error: {error}</h1>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <h1>Model Search</h1>
+    <div className="app">
+      <header className="app-header">
+        <h1>Model Search</h1>
 
-      <ConnectionStatus />
+        <ConnectionStatus />
+      </header>
 
-      <SearchBar
-        query={query}
-        onSearchChange={handleSearchChange}
-      />
+      <div className="controls">
+        <SearchBar
+          query={query}
+          onSearchChange={handleSearchChange}
+        />
 
-      <FilterPanel
-        models={models}
-        filters={filterOptions}
-        onFilterChange={handleFilterChange}
-      />
-      <SortPanel
-        field={sortField}
-        direction={sortDirection}
-        onSortChange={(field, direction) => {
+        <FilterPanel
+          models={models}
+          filters={filterOptions}
+          onFilterChange={handleFilterChange}
+        />
+
+        <SortPanel
+          field={sortField}
+          direction={sortDirection}
+          onSortChange={(field, direction) => {
             setSortField(field);
             setSortDirection(direction);
-        }}
-      />
-    
-      <p>
-        Showing {filteredModels.length} of {models.length} models
+          }}
+        />
+      </div>
+
+      <p className="results-count">
+        Showing {sortedModels.length} of {models.length} models
       </p>
 
-    
       <ModelList models={sortedModels} />
     </div>
   );

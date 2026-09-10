@@ -12,6 +12,6 @@ export class ModelApi {
 
         return response.json() as Promise<ModelsResponse>;
       })
-      .then((data) => {return data.models;});
+      .then((data) => {return data.models});
   }
 }

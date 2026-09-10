@@ -14,7 +14,7 @@ interface SortPanelProps {
 
 export function SortPanel({ field, direction, onSortChange}: SortPanelProps) {
   return (
-    <div>
+    <div className="sort-panel">
       <label>Sort by: </label>
 
       <select

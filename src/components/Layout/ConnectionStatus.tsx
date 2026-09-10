@@ -19,8 +19,8 @@ export function ConnectionStatus() {
   }, []);
 
   return (
-    <p>
-      {isOnline ? "🟢 Online" : "🔴 Offline"}
+    <p className="status">
+      {isOnline ? "● Online" : "● Offline"}
     </p>
   );
 }
