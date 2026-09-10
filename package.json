@@ -4,10 +4,10 @@
   "description": "Use this template for making the Model selector assessment for Freznel AI.",
   "main": "eslint.config.js",
   "scripts": {
-  "dev": "vite",
-  "build": "tsc && vite build",
-  "preview": "vite preview"
-},
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hemendraroy04-sketch/Binaire-FreznelAI-Assessment.git"
