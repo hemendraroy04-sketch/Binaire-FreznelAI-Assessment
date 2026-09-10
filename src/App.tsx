@@ -5,7 +5,7 @@ import type { ModelData } from "./models/Model";
 
 import { ModelSearch } from "./search/ModelSearch";
 import { debounce } from "./utils/debounce";
-
+import { BackgroundFetcher } from "./services/BackgroundFetcher";
 import type { ModelFilterOptions } from "./filters/types";
 import { ModelFilter } from "./filters/ModelFilter";
 import { ConnectionStatus } from "./components/Layout/ConnectionStatus";
@@ -36,20 +36,25 @@ function App() {
   const sorter = useMemo(() => { return new ModelSorter(); }, []);
 
   useEffect(() => {
-    const service = new ModelService();
+  const service = new ModelService();
+  const backgroundFetcher = new BackgroundFetcher();
 
-    service
-      .getModels()
-      .then((data) => {
-        setModels(data);
-        setFilteredModels(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
+  service
+    .getModels()
+    .then((data) => {
+      setModels(data);
+      setFilteredModels(data);
+      setLoading(false);
+
+      if (navigator.onLine) {
+        backgroundFetcher.fetchAndCache();
+      }
+    })
+    .catch((err) => {
+      setError(err.message);
+      setLoading(false);
+    });
+}, []);
 
   const search = useMemo(() => {
     return new ModelSearch(models);
